@@ -554,15 +554,16 @@ function showError(message, isFatal = false) {
   const projectParagraphEl = document.getElementById('project-paragraph');
   projectParagraphEl.innerHTML = `<p style="color: red; text-align: center;">${message}</p>`;
   
-  // Still show the form even with error
-  document.getElementById('feedback-container').style.display = 'block';
+  if (isFatal) {
+    document.getElementById('feedback-container').style.display = 'none';
+  }
 }
 
 function setLoadingState(loading) {
   const submitBtn = document.getElementById('submit-button');
   if (loading) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
   } else {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Feedback';
@@ -579,7 +580,6 @@ function parseProjectFromUrl() {
   console.log("p parameter found:", pParam);
   
   // Expected format: /clientCode/projectCode
-  // Remove leading and trailing slashes and split
   const cleanParam = pParam.replace(/^\/+|\/+$/g, '');
   const parts = cleanParam.split('/').filter(part => part.trim() !== '');
   
@@ -644,22 +644,22 @@ async function fetchProjectData(clientCode, projectCode) {
   }
 }
 
-// Submit Feedback via Web App
+// Submit Feedback via Web App - UPDATED FIELD NAME
 async function submitFeedback(formData, projectData) {
   try {
     setLoadingState(true);
     
-    // Prepare data for submission - matching your Google Sheets column names
+    // Prepare data for submission - using exact column names from your sheet
     const submissionData = {
-      timestamp: new Date().toISOString(),
-      project_code: projectData.project_code || '',
       client_code: projectData.client_code || '',
+      project_code: projectData.project_code || '',
+      timestamp: new Date().toISOString(),
       overall_rating: formData.overallRating,
       quality_rating: formData.qualityRating,
       timeliness_rating: formData.timelinessRating,
       communication_rating: formData.communicationRating,
       value_rating: formData.valueRating,
-      comments: formData.comments || ''
+      additional_comment: formData.comments || ''  // CHANGED FROM 'comments' TO 'additional_comment'
     };
     
     console.log('Submitting feedback:', submissionData);
@@ -673,7 +673,12 @@ async function submitFeedback(formData, projectData) {
       body: JSON.stringify(submissionData)
     });
     
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const result = await response.json();
+    console.log('Submission response:', result);
     
     if (result.status === 'success') {
       return { success: true };
@@ -696,7 +701,7 @@ async function loadProjectData() {
     const urlProject = parseProjectFromUrl();
     
     if (!urlProject) {
-      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/25408/123423');
+      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/25408/123423', true);
       return;
     }
     
@@ -712,11 +717,10 @@ async function loadProjectData() {
 
   } catch (err) {
     console.error(err);
-    showError('Unable to fetch project data: ' + (err.message || err));
+    showError('Unable to fetch project data: ' + (err.message || err), true);
   }
 }
 
-// YOUR UPDATED displayProjectData FUNCTION
 function displayProjectData(project) {
   const projectNameEl = document.getElementById('project-name');
   const projectParagraphEl = document.getElementById('project-paragraph');
@@ -738,7 +742,7 @@ function displayProjectData(project) {
   document.getElementById('feedback-container').style.display = 'block';
 }
 
-// YOUR UPDATED generateProjectParagraph FUNCTION
+// Generate project paragraph content
 function generateProjectParagraph(project) {
   const type = (project.project_type || '').toString().trim();
   const code = project.project_code || project.projectcode || '';
@@ -828,7 +832,6 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
     
     if (!validateForm()) {
-      // Scroll to first error
       const firstError = document.querySelector('.error-message[style="display: block"]');
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -870,6 +873,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
 
