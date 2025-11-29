@@ -716,6 +716,7 @@ async function loadProjectData() {
   }
 }
 
+// YOUR UPDATED displayProjectData FUNCTION
 function displayProjectData(project) {
   const projectNameEl = document.getElementById('project-name');
   const projectParagraphEl = document.getElementById('project-paragraph');
@@ -730,22 +731,23 @@ function displayProjectData(project) {
   // Store project data for form submission
   currentProjectData = project;
 
+  // NO LINK IS ADDED HERE - The "View Project Details" link is completely removed
   projectParagraphEl.innerHTML = paragraphHtml;
   
   document.getElementById('loading-spinner').style.display = 'none';
   document.getElementById('feedback-container').style.display = 'block';
 }
 
-// Generate project paragraph content - Updated to use actual project data
+// YOUR UPDATED generateProjectParagraph FUNCTION
 function generateProjectParagraph(project) {
   const type = (project.project_type || '').toString().trim();
-  const code = project.project_code || '';
-  const client = project.client_code || '';
-  const title = project.project_title || '';
-  const patent = project.patent_number || '';
-  const product = project.product_name || '';
+  const code = project.project_code || project.projectcode || '';
+  const client = project.client_code || project.clientcode || '';
+  const title = project.project_title || project.projecttitle || '';
+  const patent = project.patent_number || project.patentnumber || '';
+  const product = project.product_mapped || project.productname || project.product_name || project.product || '';
 
- console.log("Generating paragraph for project type:", type);
+  console.log("Generating paragraph for project type:", type);
 
   // Normalize for matching
   const t = type.toLowerCase();
@@ -865,7 +867,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
 </body>
 
 </html>
+
