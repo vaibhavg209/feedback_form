@@ -526,128 +526,295 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
+// Web App URLs
+const FETCH_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
+const SUBMIT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
 
-let currentProject = {};
+// Global variable to store current project data
+let currentProjectData = {};
 
-// Get URL parameters
-function getParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const p = urlParams.get('p');
-  if (!p) return null;
-  
-  const parts = p.replace(/^\//, '').split('/');
-  if (parts.length < 2) return null;
-  
-  return {
-    clientCode: parts[0],
-    projectCode: parts[1]
-  };
+// Utility Functions
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
 }
 
-// Load project data
-async function loadProject() {
-  const params = getParams();
-  if (!params) {
-    alert('Invalid URL. Use format: ?p=/clientCode/projectCode');
-    return;
-  }
-  
-  try {
-    const url = `${WEB_APP_URL}?clientCode=${params.clientCode}&projectCode=${params.projectCode}`;
-    const response = await fetch(url);
-    const result = await response.json();
-    
-    if (result.status === 'success') {
-      currentProject = result.project;
-      document.getElementById('project-name').textContent = result.project.project_title || 'Project';
-      document.getElementById('project-details').innerHTML = `
-        <p><strong>Project Code:</strong> ${result.project.project_code}</p>
-        <p><strong>Client Code:</strong> ${result.project.client_code}</p>
-      `;
-    } else {
-      alert('Error: ' + result.message);
-    }
-  } catch (error) {
-    alert('Failed to load project: ' + error.message);
-  }
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
-// Submit feedback
-async function submitFeedback(event) {
-  event.preventDefault();
+function showError(message, isFatal = false) {
+  document.getElementById('loading-spinner').style.display = 'none';
+  const projectParagraphEl = document.getElementById('project-paragraph');
+  projectParagraphEl.innerHTML = <p style="color: red; text-align: center;">${message}</p>;
   
-  const formData = new FormData(event.target);
-  const ratings = {
-    overall: formData.get('overall'),
-    quality: formData.get('quality'),
-    timeliness: formData.get('timeliness'),
-    communication: formData.get('communication'),
-    value: formData.get('value')
-  };
-  
-  // Validate all ratings are selected
-  for (const [key, value] of Object.entries(ratings)) {
-    if (!value) {
-      alert(`Please select ${key} rating`);
-      return;
-    }
-  }
-  
-  const submitBtn = event.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting...';
-  
-  try {
-    const data = {
-      client_code: currentProject.client_code,
-      project_code: currentProject.project_code,
-      overall_rating: ratings.overall,
-      quality_rating: ratings.quality,
-      timeliness_rating: ratings.timeliness,
-      communication_rating: ratings.communication,
-      value_rating: ratings.value,
-      additional_comment: formData.get('comments') || ''
-    };
-    
-    console.log('Submitting:', data);
-    
-    const response = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    
-    const result = await response.json();
-    console.log('Response:', result);
-    
-    if (result.status === 'success') {
-      document.getElementById('feedback-form').style.display = 'none';
-      document.getElementById('thank-you').style.display = 'block';
-    } else {
-      throw new Error(result.message);
-    }
-    
-  } catch (error) {
-    alert('Submission failed: ' + error.message);
+  // Still show the form even with error
+  document.getElementById('feedback-container').style.display = 'block';
+}
+
+function setLoadingState(loading) {
+  const submitBtn = document.getElementById('submit-button');
+  if (loading) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+  } else {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Feedback';
   }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-  loadProject();
+// Parse the p parameter to extract client and project codes
+function parseProjectFromUrl() {
+  const pParam = getQueryParam('p');
+  if (!pParam) {
+    return null;
+  }
   
-  document.getElementById('feedback-form').addEventListener('submit', submitFeedback);
+  console.log("p parameter found:", pParam);
+  
+  // Expected format: /clientCode/projectCode
+  // Remove leading and trailing slashes and split
+  const cleanParam = pParam.replace(/^\/+|\/+$/g, '');
+  const parts = cleanParam.split('/').filter(part => part.trim() !== '');
+  
+  console.log("Parsed parts:", parts);
+  
+  if (parts.length >= 2) {
+    return {
+      clientCode: parts[0],
+      projectCode: parts[1]
+    };
+  }
+  return null;
+}
+
+// Form Validation
+function validateForm() {
+  let isValid = true;
+  
+  const requiredFields = [
+    'overallRating',
+    'qualityRating', 
+    'timelinessRating',
+    'communicationRating',
+    'valueRating'
+  ];
+  
+  requiredFields.forEach(field => {
+    const checked = document.querySelector(input[name="${field}"]:checked);
+    const errorElement = document.getElementById(${field}Error);
+    
+    if (!checked) {
+      errorElement.style.display = 'block';
+      isValid = false;
+    } else {
+      errorElement.style.display = 'none';
+    }
+  });
+  
+  return isValid;
+}
+
+// Fetch Project Data from Web App
+async function fetchProjectData(clientCode, projectCode) {
+  try {
+    console.log('Fetching project data for:', { clientCode, projectCode });
+    
+    const url = ${FETCH_WEB_APP_URL}?clientCode=${encodeURIComponent(clientCode)}&projectCode=${encodeURIComponent(projectCode)};
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    console.log('Web App response:', result);
+    
+    if (result.status === 'success') {
+      return result.project;
+    } else {
+      throw new Error(result.message || 'Project not found');
+    }
+  } catch (error) {
+    console.error('Error fetching project data:', error);
+    throw error;
+  }
+}
+
+// Submit Feedback via Web App
+async function submitFeedback(formData, projectData) {
+  try {
+    setLoadingState(true);
+    
+    // Prepare data for submission - matching your Google Sheets column names
+    const submissionData = {
+      timestamp: new Date().toISOString(),
+      project_code: projectData.project_code || '',
+      client_code: projectData.client_code || '',
+      overall_rating: formData.overallRating,
+      quality_rating: formData.qualityRating,
+      timeliness_rating: formData.timelinessRating,
+      communication_rating: formData.communicationRating,
+      value_rating: formData.valueRating,
+      comments: formData.comments || ''
+    };
+    
+    console.log('Submitting feedback:', submissionData);
+    
+    // Submit to Google Apps Script Web App
+    const response = await fetch(SUBMIT_WEB_APP_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submissionData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      return { success: true };
+    } else {
+      throw new Error(result.message || 'Failed to submit feedback');
+    }
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    throw new Error('Failed to submit feedback. Please try again.');
+  } finally {
+    setLoadingState(false);
+  }
+}
+
+// Main function to load project data
+async function loadProjectData() {
+  try {
+    // Get project info from URL
+    const urlProject = parseProjectFromUrl();
+    
+    if (!urlProject) {
+      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/25408/123423');
+      return;
+    }
+    
+    console.log("Loading project from URL:", urlProject);
+    
+    // Show loading state
+    document.getElementById('project-name').textContent = 'Loading Project...';
+    
+    // Fetch project data from web app
+    const projectData = await fetchProjectData(urlProject.clientCode, urlProject.projectCode);
+    
+    displayProjectData(projectData);
+
+  } catch (err) {
+    console.error(err);
+    showError('Unable to fetch project data: ' + (err.message || err));
+  }
+}
+
+function displayProjectData(project) {
+  const projectNameEl = document.getElementById('project-name');
+  const projectParagraphEl = document.getElementById('project-paragraph');
+  
+  // Use project title if present for heading
+  const heading = project.project_title || project.projecttitle || project.title || project.name || project.project_code || 'Unnamed Project';
+  projectNameEl.textContent = heading;
+
+  // Generate the dynamic paragraph based on project_type
+  const paragraphHtml = generateProjectParagraph(project);
+
+  // Store project data for form submission
+  currentProjectData = project;
+
+  projectParagraphEl.innerHTML = paragraphHtml;
+  
+  document.getElementById('loading-spinner').style.display = 'none';
+  document.getElementById('feedback-container').style.display = 'block';
+}
+
+// Generate project paragraph content - Updated to use actual project data
+function generateProjectParagraph(project) {
+  const type = (project.project_type || '').toString().trim();
+  const code = project.project_code || '';
+  const client = project.client_code || '';
+  const title = project.project_title || '';
+  const patent = project.patent_number || '';
+  const product = project.product_name || '';
+
+  // Use the actual project data from your sheet
+  return `
+    <p>Thank you for collaborating with us on this project.<br>
+    Your feedback is valuable in helping us improve our services and deliver better results.</p>
+
+    <p><strong>Project Details:</strong><br>
+    Project Code: ${escapeHtml(code)}<br>
+    Client Code: ${escapeHtml(client)}<br>
+    Project Type: ${escapeHtml(type)}<br>
+    Project Title: ${escapeHtml(title)}${patent ? <br>Patent Number: ${escapeHtml(patent)} : ''}${product ? <br>Product Name: ${escapeHtml(product)} : ''}</p>
+
+    <p>We appreciate your valuable partnership.</p>
+  `;
+}
+
+// Thank You Page
+function showThankYouPage() {
+  document.getElementById('feedback-container').style.display = 'none';
+  document.getElementById('thank-you-container').style.display = 'block';
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Load project data via web app
+  loadProjectData();
+  
+  // Form submission handler
+  document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      // Scroll to first error
+      const firstError = document.querySelector('.error-message[style="display: block"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    
+    // Collect form data
+    const formData = {
+      overallRating: document.querySelector('input[name="overallRating"]:checked').value,
+      qualityRating: document.querySelector('input[name="qualityRating"]:checked').value,
+      timelinessRating: document.querySelector('input[name="timelinessRating"]:checked').value,
+      communicationRating: document.querySelector('input[name="communicationRating"]:checked').value,
+      valueRating: document.querySelector('input[name="valueRating"]:checked').value,
+      comments: document.getElementById('comments').value
+    };
+    
+    try {
+      const result = await submitFeedback(formData, currentProjectData);
+      showThankYouPage();
+    } catch (error) {
+      alert('Error submitting feedback: ' + error.message);
+    }
+  });
+  
+  // Real-time validation for radio buttons
+  const radioGroups = document.querySelectorAll('input[type="radio"]');
+  radioGroups.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const fieldName = this.name;
+      const errorElement = document.getElementById(${fieldName}Error);
+      if (errorElement) {
+        errorElement.style.display = 'none';
+      }
+    });
+  });
 });
 </script>
+
 </body>
-
 </html>
-
-
-
-
-
-
