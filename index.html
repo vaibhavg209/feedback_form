@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LogicApt - Client Feedback Form</title>
 
-  <!-- BOOTSTRAP -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- ICONS -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -222,7 +220,6 @@
 
 <body>
 
-<!-- TOP BAR -->
 <div class="top-nav">
   <div class="container d-flex justify-content-between flex-wrap">
 
@@ -251,7 +248,6 @@
   </div>
 </div>
 
-<!-- HEADER -->
 <header>
   <div class="container d-flex align-items-center justify-content-between">
     <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" class="logo" alt="LogicApt Logo" />
@@ -259,7 +255,6 @@
   </div>
 </header>
 
-<!-- PROJECT INFO -->
 <div class="container first-section">
   <div class="form-card">
     <h2 id="project-name" style="color:#ff7f27;">Loading Project...</h2>
@@ -276,7 +271,6 @@
   </div>
 </div>
 
-<!-- FEEDBACK FORM -->
 <div class="container">
   <div id="feedback-container" class="form-card fade-in" style="display:none;">
 
@@ -441,7 +435,6 @@
   </div>
 </div>
 
-<!-- THANK YOU -->
 <div class="container">
   <div id="thank-you-container" class="form-card text-center" style="display:none;">
     <h2 style="color:#ff7f27;">Thank You for Your Feedback!</h2>
@@ -456,12 +449,10 @@
   </div>
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div class="container">
     <div class="row">
 
-      <!-- COLUMN 1 -->
       <div class="col-md-4 mb-4">
         <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" style="height:55px;" alt="LogicApt Logo" />
         <h4 class="mt-3">Have a project?</h4>
@@ -469,7 +460,6 @@
         <p><a href="mailto:info@logicapt.com" style="color:#ff7f27;">info@logicapt.com</a></p>
       </div>
 
-      <!-- COLUMN 2 -->
       <div class="col-md-4 mb-4">
         <h4>Our Office</h4>
 
@@ -495,7 +485,6 @@
         </p>
       </div>
 
-      <!-- COLUMN 3 -->
       <div class="col-md-4 mb-4">
         <h4>Find us on social media</h4>
 
@@ -517,12 +506,11 @@
     </div>
 
     <div class="footer-bottom">
-      &copy; 2025 LogicApt. All rights reserved.
+      © 2025 LogicApt. All rights reserved.
     </div>
   </div>
 </footer>
 
-<!-- BOOTSTRAP JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -542,11 +530,11 @@ function getQueryParam(name) {
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/'/g, ''');
 }
 
 function showError(message, isFatal = false) {
@@ -647,7 +635,7 @@ async function fetchProjectData(clientCode, projectCode) {
   }
 }
 
-// Submit Feedback via Web App - IMPROVED ERROR HANDLING
+// Submit Feedback via Web App - FIXED CORS ISSUE HERE
 async function submitFeedback(formData, projectData) {
   try {
     setLoadingState(true);
@@ -666,22 +654,863 @@ async function submitFeedback(formData, projectData) {
     
     console.log('Submitting feedback:', submissionData);
     
-    // Submit to Google Apps Script Web App
+    // --- FIX START: Removed 'headers' object to prevent CORS preflight ---
     const response = await fetch(SUBMIT_WEB_APP_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submissionData)
+      body: JSON.stringify(submissionData) // Sending as raw text string
     });
+    // --- FIX END ---
     
-    console.log('Response status:', response.status, response.statusText);
+    // Google Apps Script usually returns a redirect, but fetch follows it.
+    // If we reach here, it means the request was sent successfully.
+    // We try to parse JSON, but if the CORS policy is strict, we might just assume success if no network error.
     
+    const result = await response.json();
+    console.log('Submission response:', result);
+    
+    if (result.status === 'success') {
+      return { success: true };
+    } else {
+      throw new Error(result.message || 'Failed to submit feedback');
+    }
+    
+  } catch (error) {
+    console.error('Full submission error:', error);
+    throw new Error('Failed to submit feedback: ' + error.message);
+  } finally {
+    setLoadingState(false);
+  }
+}
+
+// Main function to load project data
+async function loadProjectData() {
+  try {
+    // Get project info from URL
+    const urlProject = parseProjectFromUrl();
+    
+    if (!urlProject) {
+      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/25408/123423', true);
+      return;
+    }
+    
+    console.log("Loading project from URL:", urlProject);
+    
+    // Show loading state
+    document.getElementById('project-name').textContent = 'Loading Project...';
+    
+    // Fetch project data from web app
+    const projectData = await fetchProjectData(urlProject.clientCode, urlProject.projectCode);
+    
+    displayProjectData(projectData);
+
+  } catch (err) {
+    console.error(err);
+    showError('Unable to fetch project data: ' + (err.message || err), true);
+  }
+}
+
+function displayProjectData(project) {
+  const projectNameEl = document.getElementById('project-name');
+  const projectParagraphEl = document.getElementById('project-paragraph');
+  
+  // Use project title if present for heading
+  const heading = project.project_title || project.projecttitle || project.title || project.name || project.project_code || 'Unnamed Project';
+  projectNameEl.textContent = heading;
+
+  // Generate the dynamic paragraph based on project_type
+  const paragraphHtml = generateProjectParagraph(project);
+
+  // Store project data for form submission
+  currentProjectData = project;
+
+  projectParagraphEl.innerHTML = paragraphHtml;
+  
+  document.getElementById('loading-spinner').style.display = 'none';
+  document.getElementById('feedback-container').style.display = 'block';
+}
+
+// Generate project paragraph content
+function generateProjectParagraph(project) {
+  const type = (project.project_type || '').toString().trim();
+  const code = project.project_code || project.projectcode || '';
+  const client = project.client_code || project.clientcode || '';
+  const title = project.project_title || project.projecttitle || '';
+  const patent = project.patent_number || project.patentnumber || '';
+  const product = project.product_mapped || project.productname || project.product_name || project.product || '';
+
+  console.log("Generating paragraph for project type:", type);
+
+  // Normalize for matching
+  const t = type.toLowerCase();
+  
+  if (t.includes('patentability') || t.includes('patentibility') || (t.includes('patent') && (t.includes('search') || t.includes('analysis')))) {
+    return '<p>Thank you for collaborating with us on this Patentability Search project.<br>' +
+           'Your insights help us assess the inventive step and novelty with accuracy.<br>' +
+           'Please provide your feedback to help us improve our search strategies.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Patentability Search<br>' +
+           'Project Title: ' + escapeHtml(title) + 
+           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') + '</p>' +
+           '<p>Thank you for your valuable partnership.</p>';
+  } else if (t.includes('invalidation') || t.includes('invalidity') || t.includes('opposition')) {
+    return '<p>We appreciate the opportunity to support you in this Invalidation Search project.<br>' +
+           'Your feedback helps us refine our methodology for identifying prior art and analysing patent strength.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Invalidation Search<br>' +
+           'Project Title: ' + escapeHtml(title) + '<br>' +
+           'Patent Number: ' + escapeHtml(patent) + '</p>' +
+           '<p>Thank you for trusting our expertise.</p>';
+  } else if (t.includes('infringement') || t.includes('infringment') || t.includes('freedom') || t.includes('f-to-operate') || t.includes('clearance')) {
+    return '<p>Thank you for working with us on this Infringement Study project.<br>' +
+           'Your feedback enables us to improve our evaluation of claim mapping and product analysis.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Infringement Study<br>' +
+           'Project Title: ' + escapeHtml(title) + '<br>' +
+           'Patent Number: ' + escapeHtml(patent) + '<br>' +
+           'Product Name: ' + escapeHtml(product) + '</p>' +
+           '<p>We appreciate your continued collaboration.</p>';
+  } else {
+    // Generic fallback
+    return '<p>Thank you for collaborating with us on this project.<br>' +
+           'Your feedback helps us improve our services and deliver better results.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: ' + escapeHtml(type || 'Unknown') + '<br>' +
+           'Project Title: ' + escapeHtml(title) + 
+           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') +
+           (product ? '<br>Product Name: ' + escapeHtml(product) : '') + '</p>' +
+           '<p>Thank you for your valuable partnership.</p>';
+  }
+}
+
+// Thank You Page
+function showThankYouPage() {
+  document.getElementById('feedback-container').style.display = 'none';
+  document.getElementById('thank-you-container').style.display = 'block';
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Load project data via web app
+  loadProjectData();
+  
+  // Form submission handler
+  document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      const firstError = document.querySelector('.error-message[style="display: block"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    
+    // Collect form data
+    const formData = {
+      overallRating: document.querySelector('input[name="overallRating"]:checked').value,
+      qualityRating: document.querySelector('input[name="qualityRating"]:checked').value,
+      timelinessRating: document.querySelector('input[name="timelinessRating"]:checked').value,
+      communicationRating: document.querySelector('input[name="communicationRating"]:checked').value,
+      valueRating: document.querySelector('input[name="valueRating"]:checked').value,
+      comments: document.getElementById('comments').value
+    };
+    
+    try {
+      const result = await submitFeedback(formData, currentProjectData);
+      showThankYouPage();
+    } catch (error) {
+      alert('Error submitting feedback: ' + error.message);
+    }
+  });
+  
+  // Real-time validation for radio buttons
+  const radioGroups = document.querySelectorAll('input[type="radio"]');
+  radioGroups.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const fieldName = this.name;
+      const errorElement = document.getElementById(fieldName + 'Error');
+      if (errorElement) {
+        errorElement.style.display = 'none';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogicApt - Client Feedback Form</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-color: #ff7f27;
+      --secondary-color: #333;
+      --background-color: #f5f6fa;
+      --card-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--background-color);
+      color: var(--secondary-color);
+    }
+
+    a { text-decoration: none; }
+
+    /* TOP BAR */
+    .top-nav {
+      background: #000;
+      color: #fff;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #222;
+    }
+
+    .top-nav a {
+      color: #c8cdd6;
+      margin-right: 20px;
+      transition: color 0.3s;
+    }
+    
+    .top-nav a:hover {
+      color: #fff;
+    }
+
+    .circle-icon {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 13px;
+      margin-left: 10px;
+      transition: all 0.3s;
+    }
+    
+    .circle-icon:hover {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    /* HEADER */
+    header {
+      background: #fff;
+      padding: 15px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .logo { height: 70px; }
+
+    h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    /* CARD */
+    .form-card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 30px;
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.9s forwards ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FIX: GAP BETWEEN HEADER & FIRST CARD */
+    .first-section {
+      margin-top: 40px;
+    }
+
+    /* Form Styles */
+    .rating-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .form-check-inline {
+      margin-right: 0;
+    }
+    
+    .form-check-input:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .form-check-label {
+      margin-left: 5px;
+    }
+    
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875em;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(255, 127, 39, 0.25);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: #e67322;
+      border-color: #e67322;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* FOOTER */
+    footer {
+      background: #fff;
+      padding: 60px 0 30px 0;
+      border-top: 1px solid #ddd;
+      margin-top: 70px;
+    }
+
+    .footer-social a {
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+      color: var(--primary-color);
+      font-size: 17px;
+      transition: all 0.3s;
+    }
+    
+    .footer-social a:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .form-card {
+        padding: 20px 15px;
+      }
+      
+      .col-md-4.fw-bold {
+        margin-bottom: 10px;
+      }
+      
+      .rating-group {
+        gap: 10px;
+      }
+      
+      footer {
+        padding: 40px 0 20px 0;
+        margin-top: 50px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+<div class="top-nav">
+  <div class="container d-flex justify-content-between flex-wrap">
+
+    <div>
+      <a href="#"><i class="fa fa-question-circle"></i> FAQ</a>
+      <a href="https://www.google.com/maps/search/?api=1&query=A-40A Landmark Plaza Mohali" target="_blank">
+        <i class="fa fa-map-marker-alt"></i> A-40A, Landmark Plaza, Mohali
+      </a>
+    </div>
+
+    <div>
+      <a href="mailto:abhay@logicapt.com"><i class="fa fa-envelope"></i> abhay@logicapt.com</a>
+      <a href="tel:+14157278390"><i class="fa fa-phone"></i> +1 (415) 727 8390</a>
+
+      <a href="https://linkedin.com/company/logicapt"
+         target="_blank" class="circle-icon">
+        <i class="fa-brands fa-linkedin"></i>
+      </a>
+
+      <a href="https://instagram.com/logicaptinformatics/"
+         target="_blank" class="circle-icon">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<header>
+  <div class="container d-flex align-items-center justify-content-between">
+    <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" class="logo" alt="LogicApt Logo" />
+    <h1>Client Feedback Form</h1>
+  </div>
+</header>
+
+<div class="container first-section">
+  <div class="form-card">
+    <h2 id="project-name" style="color:#ff7f27;">Loading Project...</h2>
+    <div id="project-paragraph"></div>
+
+    <div id="loading-spinner" class="text-center">
+      <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading project details...</p>
+    </div>
+
+    <p id="error-message" style="display:none; color:red; text-align:center;"></p>
+  </div>
+</div>
+
+<div class="container">
+  <div id="feedback-container" class="form-card fade-in" style="display:none;">
+
+    <p>Thank you for your collaboration. Your feedback helps us improve our services.</p>
+
+    <form id="feedbackForm" novalidate>
+      <div class="row mb-3">
+        <div class="col-md-4 fw-bold">Overall Rating: <span class="text-danger">*</span></div>
+        <div class="col-md-8">
+          <div class="rating-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="overallRating" id="overallRating1" value="1" required>
+              <label class="form-check-label" for="overallRating1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="overallRating" id="overallRating2" value="2">
+              <label class="form-check-label" for="overallRating2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="overallRating" id="overallRating3" value="3">
+              <label class="form-check-label" for="overallRating3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="overallRating" id="overallRating4" value="4">
+              <label class="form-check-label" for="overallRating4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="overallRating" id="overallRating5" value="5">
+              <label class="form-check-label" for="overallRating5">5</label>
+            </div>
+          </div>
+          <div class="error-message" id="overallRatingError">Please provide an overall rating</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4 fw-bold">Quality of Service: <span class="text-danger">*</span></div>
+        <div class="col-md-8">
+          <div class="rating-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating1" value="1" required>
+              <label class="form-check-label" for="qualityRating1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating2" value="2">
+              <label class="form-check-label" for="qualityRating2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating3" value="3">
+              <label class="form-check-label" for="qualityRating3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating4" value="4">
+              <label class="form-check-label" for="qualityRating4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating5" value="5">
+              <label class="form-check-label" for="qualityRating5">5</label>
+            </div>
+          </div>
+          <div class="error-message" id="qualityRatingError">Please provide a quality rating</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4 fw-bold">Timeliness: <span class="text-danger">*</span></div>
+        <div class="col-md-8">
+          <div class="rating-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating1" value="1" required>
+              <label class="form-check-label" for="timelinessRating1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating2" value="2">
+              <label class="form-check-label" for="timelinessRating2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating3" value="3">
+              <label class="form-check-label" for="timelinessRating3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating4" value="4">
+              <label class="form-check-label" for="timelinessRating4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating5" value="5">
+              <label class="form-check-label" for="timelinessRating5">5</label>
+            </div>
+          </div>
+          <div class="error-message" id="timelinessRatingError">Please provide a timeliness rating</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4 fw-bold">Communication: <span class="text-danger">*</span></div>
+        <div class="col-md-8">
+          <div class="rating-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating1" value="1" required>
+              <label class="form-check-label" for="communicationRating1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating2" value="2">
+              <label class="form-check-label" for="communicationRating2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating3" value="3">
+              <label class="form-check-label" for="communicationRating3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating4" value="4">
+              <label class="form-check-label" for="communicationRating4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating5" value="5">
+              <label class="form-check-label" for="communicationRating5">5</label>
+            </div>
+          </div>
+          <div class="error-message" id="communicationRatingError">Please provide a communication rating</div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-4 fw-bold">Value for Money: <span class="text-danger">*</span></div>
+        <div class="col-md-8">
+          <div class="rating-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="valueRating" id="valueRating1" value="1" required>
+              <label class="form-check-label" for="valueRating1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="valueRating" id="valueRating2" value="2">
+              <label class="form-check-label" for="valueRating2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="valueRating" id="valueRating3" value="3">
+              <label class="form-check-label" for="valueRating3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="valueRating" id="valueRating4" value="4">
+              <label class="form-check-label" for="valueRating4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="valueRating" id="valueRating5" value="5">
+              <label class="form-check-label" for="valueRating5">5</label>
+            </div>
+          </div>
+          <div class="error-message" id="valueRatingError">Please provide a value rating</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="comments" class="form-label fw-bold">Additional Comments:</label>
+        <textarea name="comments" id="comments" class="form-control" 
+                  placeholder="Please share any additional feedback..." rows="4"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary px-4" id="submit-button">
+        Submit Feedback
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="container">
+  <div id="thank-you-container" class="form-card text-center" style="display:none;">
+    <h2 style="color:#ff7f27;">Thank You for Your Feedback!</h2>
+    <p>Your input helps us improve our services.</p>
+
+    <p><strong>Total Submissions:</strong> <span id="total-submissions">Loading…</span></p>
+    <p><strong>Average Overall Rating:</strong> <span id="avg-rating">Loading…</span> / 5</p>
+
+    <button onclick="location.reload()" class="btn btn-primary px-4">
+      Submit Another
+    </button>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="row">
+
+      <div class="col-md-4 mb-4">
+        <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" style="height:55px;" alt="LogicApt Logo" />
+        <h4 class="mt-3">Have a project?</h4>
+        <p>WE CAN HELP</p>
+        <p><a href="mailto:info@logicapt.com" style="color:#ff7f27;">info@logicapt.com</a></p>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <h4>Our Office</h4>
+
+        <p><strong>ADDRESS</strong></p>
+        <p>
+          <a href="https://www.google.com/maps/search/?api=1&query=A-40A Landmark Plaza Mohali" target="_blank">
+        <i class="fa fa-map-marker-alt"></i>
+          LogicApt Informatics Pvt. Ltd.<br>
+          A-40A Landmark Plaza<br>
+          Phase VIII Extension<br>
+          Mohali - 160059 (Punjab), India
+        </a>
+        </p>
+
+        <p><strong>PHONE</strong></p>
+        <p><strong>India:</strong><br>
+          +91 (172) 5093683<br>
+          +91 97250 07842
+        </p>
+
+        <p><strong>USA:</strong><br>
+          +1 (415) 727 8390
+        </p>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <h4>Find us on social media</h4>
+
+        <div class="footer-social mt-3">
+          <a href="https://linkedin.com/company/logicapt" target="_blank">
+            <i class="fa-brands fa-linkedin"></i>
+          </a>
+
+          <a href="https://instagram.com/logicaptinformatics/" target="_blank">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+
+          <a href="https://logicapt.com" target="_blank">
+            <i class="fa fa-globe"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2025 LogicApt. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Web App URLs
+const FETCH_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
+const SUBMIT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
+
+// Global variable to store current project data
+let currentProjectData = {};
+
+// Utility Functions
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/'/g, ''');
+}
+
+function showError(message, isFatal = false) {
+  document.getElementById('loading-spinner').style.display = 'none';
+  const projectParagraphEl = document.getElementById('project-paragraph');
+  projectParagraphEl.innerHTML = '<p style="color: red; text-align: center;">' + message + '</p>';
+  
+  if (isFatal) {
+    document.getElementById('feedback-container').style.display = 'none';
+  }
+}
+
+function setLoadingState(loading) {
+  const submitBtn = document.getElementById('submit-button');
+  if (loading) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+  } else {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Feedback';
+  }
+}
+
+// Parse the p parameter to extract client and project codes
+function parseProjectFromUrl() {
+  const pParam = getQueryParam('p');
+  if (!pParam) {
+    return null;
+  }
+  
+  console.log("p parameter found:", pParam);
+  
+  // Expected format: /clientCode/projectCode
+  const cleanParam = pParam.replace(/^\/+|\/+$/g, '');
+  const parts = cleanParam.split('/').filter(part => part.trim() !== '');
+  
+  console.log("Parsed parts:", parts);
+  
+  if (parts.length >= 2) {
+    return {
+      clientCode: parts[0],
+      projectCode: parts[1]
+    };
+  }
+  return null;
+}
+
+// Form Validation
+function validateForm() {
+  let isValid = true;
+  
+  const requiredFields = [
+    'overallRating',
+    'qualityRating', 
+    'timelinessRating',
+    'communicationRating',
+    'valueRating'
+  ];
+  
+  requiredFields.forEach(field => {
+    const checked = document.querySelector('input[name="' + field + '"]:checked');
+    const errorElement = document.getElementById(field + 'Error');
+    
+    if (!checked) {
+      errorElement.style.display = 'block';
+      isValid = false;
+    } else {
+      errorElement.style.display = 'none';
+    }
+  });
+  
+  return isValid;
+}
+
+// Fetch Project Data from Web App
+async function fetchProjectData(clientCode, projectCode) {
+  try {
+    console.log('Fetching project data for:', { clientCode, projectCode });
+    
+    const url = FETCH_WEB_APP_URL + '?clientCode=' + encodeURIComponent(clientCode) + '&projectCode=' + encodeURIComponent(projectCode);
+    
+    const response = await fetch(url);
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('HTTP error details:', errorText);
       throw new Error('HTTP error! status: ' + response.status);
     }
+    
+    const result = await response.json();
+    console.log('Web App response:', result);
+    
+    if (result.status === 'success') {
+      return result.project;
+    } else {
+      throw new Error(result.message || 'Project not found');
+    }
+  } catch (error) {
+    console.error('Error fetching project data:', error);
+    throw error;
+  }
+}
+
+// Submit Feedback via Web App - FIXED CORS ISSUE HERE
+async function submitFeedback(formData, projectData) {
+  try {
+    setLoadingState(true);
+    
+    // Prepare data for submission - EXACT field names that Google Apps Script expects
+    const submissionData = {
+      client_code: projectData.client_code || '',
+      project_code: projectData.project_code || '',
+      overall_rating: formData.overallRating,
+      quality_rating: formData.qualityRating,
+      timeliness_rating: formData.timelinessRating,
+      communication_rating: formData.communicationRating,
+      value_rating: formData.valueRating,
+      additional_comment: formData.comments || ''
+    };
+    
+    console.log('Submitting feedback:', submissionData);
+    
+    // --- FIX START: Removed 'headers' object to prevent CORS preflight ---
+    const response = await fetch(SUBMIT_WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(submissionData) // Sending as raw text string
+    });
+    // --- FIX END ---
+    
+    // Google Apps Script usually returns a redirect, but fetch follows it.
+    // If we reach here, it means the request was sent successfully.
+    // We try to parse JSON, but if the CORS policy is strict, we might just assume success if no network error.
     
     const result = await response.json();
     console.log('Submission response:', result);
@@ -864,4 +1693,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
