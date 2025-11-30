@@ -552,7 +552,7 @@ function escapeHtml(str) {
 function showError(message, isFatal = false) {
   document.getElementById('loading-spinner').style.display = 'none';
   const projectParagraphEl = document.getElementById('project-paragraph');
-  projectParagraphEl.innerHTML = <p style="color: red; text-align: center;">${message}</p>;
+  projectParagraphEl.innerHTML = '<p style="color: red; text-align: center;">' + message + '</p>';
   
   // Still show the form even with error
   document.getElementById('feedback-container').style.display = 'block';
@@ -607,8 +607,8 @@ function validateForm() {
   ];
   
   requiredFields.forEach(field => {
-    const checked = document.querySelector(input[name="${field}"]:checked);
-    const errorElement = document.getElementById(${field}Error);
+    const checked = document.querySelector('input[name="' + field + '"]:checked');
+    const errorElement = document.getElementById(field + 'Error');
     
     if (!checked) {
       errorElement.style.display = 'block';
@@ -626,7 +626,7 @@ async function fetchProjectData(clientCode, projectCode) {
   try {
     console.log('Fetching project data for:', { clientCode, projectCode });
     
-    const url = ${FETCH_WEB_APP_URL}?clientCode=${encodeURIComponent(clientCode)}&projectCode=${encodeURIComponent(projectCode)};
+    const url = FETCH_WEB_APP_URL + '?clientCode=' + encodeURIComponent(clientCode) + '&projectCode=' + encodeURIComponent(projectCode);
     
     const response = await fetch(url);
     const result = await response.json();
@@ -644,12 +644,12 @@ async function fetchProjectData(clientCode, projectCode) {
   }
 }
 
-// Submit Feedback via Web App
+// Submit Feedback via Web App - FIXED FIELD NAME
 async function submitFeedback(formData, projectData) {
   try {
     setLoadingState(true);
     
-    // Prepare data for submission - matching your Google Sheets column names
+    // Prepare data for submission - using correct field names
     const submissionData = {
       timestamp: new Date().toISOString(),
       project_code: projectData.project_code || '',
@@ -659,7 +659,7 @@ async function submitFeedback(formData, projectData) {
       timeliness_rating: formData.timelinessRating,
       communication_rating: formData.communicationRating,
       value_rating: formData.valueRating,
-      comments: formData.comments || ''
+      additional_comment: formData.comments || ''  // CHANGED FROM 'comments' TO 'additional_comment'
     };
     
     console.log('Submitting feedback:', submissionData);
@@ -736,28 +736,65 @@ function displayProjectData(project) {
   document.getElementById('feedback-container').style.display = 'block';
 }
 
-// Generate project paragraph content - Updated to use actual project data
+// Generate project paragraph content - YOUR ENHANCED VERSION
 function generateProjectParagraph(project) {
   const type = (project.project_type || '').toString().trim();
-  const code = project.project_code || '';
-  const client = project.client_code || '';
-  const title = project.project_title || '';
-  const patent = project.patent_number || '';
-  const product = project.product_name || '';
+  const code = project.project_code || project.projectcode || '';
+  const client = project.client_code || project.clientcode || '';
+  const title = project.project_title || project.projecttitle || '';
+  const patent = project.patent_number || project.patentnumber || '';
+  const product = project.product_mapped || project.productname || project.product_name || project.product || '';
 
-  // Use the actual project data from your sheet
-  return `
-    <p>Thank you for collaborating with us on this project.<br>
-    Your feedback is valuable in helping us improve our services and deliver better results.</p>
+  console.log("Generating paragraph for project type:", type);
 
-    <p><strong>Project Details:</strong><br>
-    Project Code: ${escapeHtml(code)}<br>
-    Client Code: ${escapeHtml(client)}<br>
-    Project Type: ${escapeHtml(type)}<br>
-    Project Title: ${escapeHtml(title)}${patent ? <br>Patent Number: ${escapeHtml(patent)} : ''}${product ? <br>Product Name: ${escapeHtml(product)} : ''}</p>
-
-    <p>We appreciate your valuable partnership.</p>
-  `;
+  // Normalize for matching
+  const t = type.toLowerCase();
+  
+  if (t.includes('patentability') || t.includes('patentibility') || (t.includes('patent') && (t.includes('search') || t.includes('analysis')))) {
+    return '<p>Thank you for collaborating with us on this Patentability Search project.<br>' +
+           'Your insights help us assess the inventive step and novelty with accuracy.<br>' +
+           'Please provide your feedback to help us improve our search strategies.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Patentability Search<br>' +
+           'Project Title: ' + escapeHtml(title) + 
+           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') + '</p>' +
+           '<p>Thank you for your valuable partnership.</p>';
+  } else if (t.includes('invalidation') || t.includes('invalidity') || t.includes('opposition')) {
+    return '<p>We appreciate the opportunity to support you in this Invalidation Search project.<br>' +
+           'Your feedback helps us refine our methodology for identifying prior art and analysing patent strength.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Invalidation Search<br>' +
+           'Project Title: ' + escapeHtml(title) + '<br>' +
+           'Patent Number: ' + escapeHtml(patent) + '</p>' +
+           '<p>Thank you for trusting our expertise.</p>';
+  } else if (t.includes('infringement') || t.includes('infringment') || t.includes('freedom') || t.includes('f-to-operate') || t.includes('clearance')) {
+    return '<p>Thank you for working with us on this Infringement Study project.<br>' +
+           'Your feedback enables us to improve our evaluation of claim mapping and product analysis.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: Infringement Study<br>' +
+           'Project Title: ' + escapeHtml(title) + '<br>' +
+           'Patent Number: ' + escapeHtml(patent) + '<br>' +
+           'Product Name: ' + escapeHtml(product) + '</p>' +
+           '<p>We appreciate your continued collaboration.</p>';
+  } else {
+    // Generic fallback
+    return '<p>Thank you for collaborating with us on this project.<br>' +
+           'Your feedback helps us improve our services and deliver better results.</p>' +
+           '<p><strong>Project Details:</strong><br>' +
+           'Project Code: ' + escapeHtml(code) + '<br>' +
+           'Client Code: ' + escapeHtml(client) + '<br>' +
+           'Type: ' + escapeHtml(type || 'Unknown') + '<br>' +
+           'Project Title: ' + escapeHtml(title) + 
+           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') +
+           (product ? '<br>Product Name: ' + escapeHtml(product) : '') + '</p>' +
+           '<p>Thank you for your valuable partnership.</p>';
+  }
 }
 
 // Thank You Page
@@ -807,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
   radioGroups.forEach(radio => {
     radio.addEventListener('change', function() {
       const fieldName = this.name;
-      const errorElement = document.getElementById(${fieldName}Error);
+      const errorElement = document.getElementById(fieldName + 'Error');
       if (errorElement) {
         errorElement.style.display = 'none';
       }
@@ -815,6 +852,5 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
 </body>
 </html>
