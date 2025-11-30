@@ -514,7 +514,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Web App URLs
+// Web App URLs - UPDATE THESE WITH YOUR NEW DEPLOYMENT URL
 const FETCH_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
 const SUBMIT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
 
@@ -536,7 +536,6 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
 
 function showError(message, isFatal = false) {
   document.getElementById('loading-spinner').style.display = 'none';
@@ -616,6 +615,7 @@ async function fetchProjectData(clientCode, projectCode) {
     console.log('Fetching project data for:', { clientCode, projectCode });
     
     const url = FETCH_WEB_APP_URL + '?clientCode=' + encodeURIComponent(clientCode) + '&projectCode=' + encodeURIComponent(projectCode);
+    console.log('Fetch URL:', url);
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -636,41 +636,44 @@ async function fetchProjectData(clientCode, projectCode) {
   }
 }
 
-// Submit Feedback via Web App - FIXED CORS ISSUE HERE
+// Submit Feedback via Web App - FIXED VERSION
 async function submitFeedback(formData, projectData) {
   try {
     setLoadingState(true);
     
-    // Prepare data for submission - EXACT field names that Google Apps Script expects
+    // Prepare data for submission
     const submissionData = {
-      client_code: projectData.client_code || '',
-      project_code: projectData.project_code || '',
-      overall_rating: formData.overallRating,
-      quality_rating: formData.qualityRating,
-      timeliness_rating: formData.timelinessRating,
-      communication_rating: formData.communicationRating,
-      value_rating: formData.valueRating,
-      additional_comment: formData.comments || ''
+      client_code: String(projectData.client_code || ''),
+      project_code: String(projectData.project_code || ''),
+      overall_rating: String(formData.overallRating || ''),
+      quality_rating: String(formData.qualityRating || ''),
+      timeliness_rating: String(formData.timelinessRating || ''),
+      communication_rating: String(formData.communicationRating || ''),
+      value_rating: String(formData.valueRating || ''),
+      additional_comment: String(formData.comments || '')
     };
     
     console.log('Submitting feedback:', submissionData);
     
-    // --- FIX START: Removed 'headers' object to prevent CORS preflight ---
     const response = await fetch(SUBMIT_WEB_APP_URL, {
       method: 'POST',
-      body: JSON.stringify(submissionData) // Sending as raw text string
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submissionData)
     });
-    // --- FIX END ---
     
-    // Google Apps Script usually returns a redirect, but fetch follows it.
-    // If we reach here, it means the request was sent successfully.
-    // We try to parse JSON, but if the CORS policy is strict, we might just assume success if no network error.
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     const result = await response.json();
     console.log('Submission response:', result);
     
     if (result.status === 'success') {
-      return { success: true };
+      return { success: true, message: result.message };
     } else {
       throw new Error(result.message || 'Failed to submit feedback');
     }
@@ -690,7 +693,7 @@ async function loadProjectData() {
     const urlProject = parseProjectFromUrl();
     
     if (!urlProject) {
-      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/25408/123423', true);
+      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/367474/25408', true);
       return;
     }
     
@@ -715,7 +718,7 @@ function displayProjectData(project) {
   const projectParagraphEl = document.getElementById('project-paragraph');
   
   // Use project title if present for heading
-  const heading = project.project_title || project.projecttitle || project.title || project.name || project.project_code || 'Unnamed Project';
+  const heading = project.project_title || 'Unnamed Project';
   projectNameEl.textContent = heading;
 
   // Generate the dynamic paragraph based on project_type
@@ -733,11 +736,11 @@ function displayProjectData(project) {
 // Generate project paragraph content
 function generateProjectParagraph(project) {
   const type = (project.project_type || '').toString().trim();
-  const code = project.project_code || project.projectcode || '';
-  const client = project.client_code || project.clientcode || '';
-  const title = project.project_title || project.projecttitle || '';
-  const patent = project.patent_number || project.patentnumber || '';
-  const product = project.product_mapped || project.productname || project.product_name || project.product || '';
+  const code = project.project_code || '';
+  const client = project.client_code || '';
+  const title = project.project_title || '';
+  const patent = project.patent_number || '';
+  const product = project.product_name || '';
 
   console.log("Generating paragraph for project type:", type);
 
@@ -825,9 +828,14 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     try {
+      console.log('Form data collected:', formData);
+      console.log('Current project data:', currentProjectData);
+      
       const result = await submitFeedback(formData, currentProjectData);
+      console.log('Submission successful:', result);
       showThankYouPage();
     } catch (error) {
+      console.error('Form submission error:', error);
       alert('Error submitting feedback: ' + error.message);
     }
   });
@@ -847,3 +855,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
