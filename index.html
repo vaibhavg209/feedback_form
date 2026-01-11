@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LogicApt - Client Feedback Form</title>
+  <title>LogicApt - Feedback Form</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -27,7 +26,6 @@
 
     a { text-decoration: none; }
 
-    /* TOP BAR */
     .top-nav {
       background: #000;
       color: #fff;
@@ -65,7 +63,6 @@
       border-color: var(--primary-color);
     }
 
-    /* HEADER */
     header {
       background: #fff;
       padding: 15px 0;
@@ -81,7 +78,6 @@
       font-weight: 600;
     }
 
-    /* CARD */
     .form-card {
       background: #fff;
       padding: 30px;
@@ -90,7 +86,6 @@
       margin-bottom: 30px;
     }
 
-    /* Fade-in animation */
     .fade-in {
       opacity: 0;
       animation: fadeIn 0.9s forwards ease-in-out;
@@ -100,12 +95,10 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* FIX: GAP BETWEEN HEADER & FIRST CARD */
     .first-section {
       margin-top: 40px;
     }
 
-    /* Form Styles */
     .rating-group {
       display: flex;
       gap: 15px;
@@ -147,21 +140,6 @@
       border-color: #e67322;
     }
     
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* FOOTER */
     footer {
       background: #fff;
       padding: 60px 0 30px 0;
@@ -172,8 +150,8 @@
     .footer-social a {
       border: 2px solid var(--primary-color);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       display: inline-flex;
       justify-content: center;
       align-items: center;
@@ -195,7 +173,6 @@
       font-size: 14px;
     }
     
-    /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .form-card {
         padding: 20px 15px;
@@ -211,7 +188,7 @@
       
       footer {
         padding: 40px 0 20px 0;
-        margin-top: 50px;
+        margin-top: 70px;
       }
     }
   </style>
@@ -250,8 +227,8 @@
 
 <header>
   <div class="container d-flex align-items-center justify-content-between">
-    <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" class="logo" alt="LogicApt Logo" />
-    <h1>Client Feedback Form</h1>
+    <img src="https://raw.githubusercontent.com/logicapt/Feedback_Form/refs/heads/main/image-removebg-preview.png" class="logo" alt="LogicApt Logo" />
+    <h1> Feedback Form</h1>
   </div>
 </header>
 
@@ -276,162 +253,175 @@
 
     <p>Thank you for your collaboration. Your feedback helps us improve our services.</p>
 
-    <form id="feedbackForm" novalidate>
-      <div class="row mb-3">
-        <div class="col-md-4 fw-bold">Overall Rating: <span class="text-danger">*</span></div>
-        <div class="col-md-8">
-          <div class="rating-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="overallRating" id="overallRating1" value="1" required>
-              <label class="form-check-label" for="overallRating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="overallRating" id="overallRating2" value="2">
-              <label class="form-check-label" for="overallRating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="overallRating" id="overallRating3" value="3">
-              <label class="form-check-label" for="overallRating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="overallRating" id="overallRating4" value="4">
-              <label class="form-check-label" for="overallRating4">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="overallRating" id="overallRating5" value="5">
-              <label class="form-check-label" for="overallRating5">5</label>
-            </div>
-          </div>
-          <div class="error-message" id="overallRatingError">Please provide an overall rating</div>
+<form id="feedbackForm" novalidate>
+
+  <!-- SEARCH QUALITY -->
+  <div class="row mb-3">
+    <div class="col-md-4 fw-bold">Search Quality: <span class="text-danger">*</span></div>
+    <div class="col-md-8">
+      <div class="rating-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="searchQuality" id="searchQuality1" value="1" required>
+          <label class="form-check-label" for="searchQuality1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="searchQuality" id="searchQuality2" value="2">
+          <label class="form-check-label" for="searchQuality2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="searchQuality" id="searchQuality3" value="3">
+          <label class="form-check-label" for="searchQuality3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="searchQuality" id="searchQuality4" value="4">
+          <label class="form-check-label" for="searchQuality4">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="searchQuality" id="searchQuality5" value="5">
+          <label class="form-check-label" for="searchQuality5">5</label>
         </div>
       </div>
+      <div class="error-message" id="searchQualityError">Please provide a search quality rating</div>
+    </div>
+  </div>
 
-      <div class="row mb-3">
-        <div class="col-md-4 fw-bold">Quality of Service: <span class="text-danger">*</span></div>
-        <div class="col-md-8">
-          <div class="rating-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating1" value="1" required>
-              <label class="form-check-label" for="qualityRating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating2" value="2">
-              <label class="form-check-label" for="qualityRating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating3" value="3">
-              <label class="form-check-label" for="qualityRating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating4" value="4">
-              <label class="form-check-label" for="qualityRating4">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="qualityRating" id="qualityRating5" value="5">
-              <label class="form-check-label" for="qualityRating5">5</label>
-            </div>
-          </div>
-          <div class="error-message" id="qualityRatingError">Please provide a quality rating</div>
+  <!-- TURNAROUND TIME -->
+  <div class="row mb-3">
+    <div class="col-md-4 fw-bold">Turnaround Time: <span class="text-danger">*</span></div>
+    <div class="col-md-8">
+      <div class="rating-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="turnaroundTime" id="turnaroundTime1" value="1" required>
+          <label class="form-check-label" for="turnaroundTime1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="turnaroundTime" id="turnaroundTime2" value="2">
+          <label class="form-check-label" for="turnaroundTime2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="turnaroundTime" id="turnaroundTime3" value="3">
+          <label class="form-check-label" for="turnaroundTime3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="turnaroundTime" id="turnaroundTime4" value="4">
+          <label class="form-check-label" for="turnaroundTime4">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="turnaroundTime" id="turnaroundTime5" value="5">
+          <label class="form-check-label" for="turnaroundTime5">5</label>
         </div>
       </div>
+      <div class="error-message" id="turnaroundTimeError">Please provide a turnaround time rating</div>
+    </div>
+  </div>
 
-      <div class="row mb-3">
-        <div class="col-md-4 fw-bold">Timeliness: <span class="text-danger">*</span></div>
-        <div class="col-md-8">
-          <div class="rating-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating1" value="1" required>
-              <label class="form-check-label" for="timelinessRating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating2" value="2">
-              <label class="form-check-label" for="timelinessRating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating3" value="3">
-              <label class="form-check-label" for="timelinessRating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating4" value="4">
-              <label class="form-check-label" for="timelinessRating4">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="timelinessRating" id="timelinessRating5" value="5">
-              <label class="form-check-label" for="timelinessRating5">5</label>
-            </div>
-          </div>
-          <div class="error-message" id="timelinessRatingError">Please provide a timeliness rating</div>
+  <!-- REPORTING (NEW FIELD) -->
+  <div class="row mb-3">
+    <div class="col-md-4 fw-bold">Reporting: <span class="text-danger">*</span></div>
+    <div class="col-md-8">
+      <div class="rating-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="reporting" id="reporting1" value="1" required>
+          <label class="form-check-label" for="reporting1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="reporting" id="reporting2" value="2">
+          <label class="form-check-label" for="reporting2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="reporting" id="reporting3" value="3">
+          <label class="form-check-label" for="reporting3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="reporting" id="reporting4" value="4">
+          <label class="form-check-label" for="reporting4">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="reporting" id="reporting5" value="5">
+          <label class="form-check-label" for="reporting5">5</label>
         </div>
       </div>
+      <div class="error-message" id="reportingError">Please provide a reporting rating</div>
+    </div>
+  </div>
 
-      <div class="row mb-3">
-        <div class="col-md-4 fw-bold">Communication: <span class="text-danger">*</span></div>
-        <div class="col-md-8">
-          <div class="rating-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating1" value="1" required>
-              <label class="form-check-label" for="communicationRating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating2" value="2">
-              <label class="form-check-label" for="communicationRating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating3" value="3">
-              <label class="form-check-label" for="communicationRating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating4" value="4">
-              <label class="form-check-label" for="communicationRating4">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="communicationRating" id="communicationRating5" value="5">
-              <label class="form-check-label" for="communicationRating5">5</label>
-            </div>
-          </div>
-          <div class="error-message" id="communicationRatingError">Please provide a communication rating</div>
+  <!-- RESPONSIVENESS -->
+  <div class="row mb-3">
+    <div class="col-md-4 fw-bold">Responsiveness: <span class="text-danger">*</span></div>
+    <div class="col-md-8">
+      <div class="rating-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="responsiveness" id="responsiveness1" value="1" required>
+          <label class="form-check-label" for="responsiveness1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="responsiveness" id="responsiveness2" value="2">
+          <label class="form-check-label" for="responsiveness2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="responsiveness" id="responsiveness3" value="3">
+          <label class="form-check-label" for="responsiveness3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="responsiveness" id="responsiveness4" value="4">
+          <label class="form-check-label" for="responsiveness4">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="responsiveness" id="responsiveness5" value="5">
+          <label class="form-check-label" for="responsiveness5">5</label>
         </div>
       </div>
+      <div class="error-message" id="responsivenessError">Please provide a responsiveness rating</div>
+    </div>
+  </div>
 
-      <div class="row mb-4">
-        <div class="col-md-4 fw-bold">Value for Money: <span class="text-danger">*</span></div>
-        <div class="col-md-8">
-          <div class="rating-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="valueRating" id="valueRating1" value="1" required>
-              <label class="form-check-label" for="valueRating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="valueRating" id="valueRating2" value="2">
-              <label class="form-check-label" for="valueRating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="valueRating" id="valueRating3" value="3">
-              <label class="form-check-label" for="valueRating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="valueRating" id="valueRating4" value="4">
-              <label class="form-check-label" for="valueRating4">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="valueRating" id="valueRating5" value="5">
-              <label class="form-check-label" for="valueRating5">5</label>
-            </div>
-          </div>
-          <div class="error-message" id="valueRatingError">Please provide a value rating</div>
+  <!-- OVERALL RATING -->
+  <div class="row mb-3">
+    <div class="col-md-4 fw-bold">Overall Rating: <span class="text-danger">*</span></div>
+    <div class="col-md-8">
+      <div class="rating-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="overallRating" id="overallRating1" value="1" required>
+          <label class="form-check-label" for="overallRating1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="overallRating" id="overallRating2" value="2">
+          <label class="form-check-label" for="overallRating2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="overallRating" id="overallRating3" value="3">
+          <label class="form-check-label" for="overallRating3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="overallRating" id="overallRating4" value="4">
+          <label class="form-check-label" for="overallRating4">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="overallRating" id="overallRating5" value="5">
+          <label class="form-check-label" for="overallRating5">5</label>
         </div>
       </div>
+      <div class="error-message" id="overallRatingError">Please provide an overall rating</div>
+    </div>
+  </div>
 
-      <div class="mb-4">
-        <label for="comments" class="form-label fw-bold">Additional Comments:</label>
-        <textarea name="comments" id="comments" class="form-control" 
-                  placeholder="Please share any additional feedback..." rows="4"></textarea>
-      </div>
+  <p class="mb-2">
+    <em>**Note: 1 indicates the lowest rating, and 5 indicates the highest rating.**</em>
+  </p>
 
-      <button type="submit" class="btn btn-primary px-4" id="submit-button">
-        Submit Feedback
-      </button>
-    </form>
+  <!-- COMMENTS -->
+  <div class="mb-4">
+    <label for="comments" class="form-label fw-bold">Help us to achieve Customer delights:</label>
+    <textarea name="comments" id="comments" class="form-control" 
+              placeholder="Scribble Anything..." rows="4"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary px-4" id="submit-button">
+    Submit Feedback
+  </button>
+
+</form>
+
   </div>
 </div>
 
@@ -439,12 +429,8 @@
   <div id="thank-you-container" class="form-card text-center" style="display:none;">
     <h2 style="color:#ff7f27;">Thank You for Your Feedback!</h2>
     <p>Your input helps us improve our services.</p>
-
-    <p><strong>Total Submissions:</strong> <span id="total-submissions">Loading…</span></p>
-    <p><strong>Average Overall Rating:</strong> <span id="avg-rating">Loading…</span> / 5</p>
-
-    <button onclick="location.reload()" class="btn btn-primary px-4">
-      Submit Another
+    <button type="button" onclick="editResponse()" class="btn btn-primary px-4">
+      Edit Response
     </button>
   </div>
 </div>
@@ -454,7 +440,7 @@
     <div class="row">
 
       <div class="col-md-4 mb-4">
-        <img src="https://raw.githubusercontent.com/ashutoshrana1999/FeedBack_Form/refs/heads/main/image-removebg-preview.png" style="height:55px;" alt="LogicApt Logo" />
+        <img src="https://raw.githubusercontent.com/logicapt/Feedback_Form/refs/heads/main/image-removebg-preview.png" style="height:55px;" alt="LogicApt Logo" />
         <h4 class="mt-3">Have a project?</h4>
         <p>WE CAN HELP</p>
         <p><a href="mailto:info@logicapt.com" style="color:#ff7f27;">info@logicapt.com</a></p>
@@ -466,12 +452,12 @@
         <p><strong>ADDRESS</strong></p>
         <p>
           <a href="https://www.google.com/maps/search/?api=1&query=A-40A Landmark Plaza Mohali" target="_blank">
-        <i class="fa fa-map-marker-alt"></i>
-          LogicApt Informatics Pvt. Ltd.<br>
-          A-40A Landmark Plaza<br>
-          Phase VIII Extension<br>
-          Mohali - 160059 (Punjab), India
-        </a>
+            <i class="fa fa-map-marker-alt"></i>
+            LogicApt Informatics Pvt. Ltd.<br>
+            A-40A Landmark Plaza<br>
+            Phase VIII Extension<br>
+            Mohali - 160059 (Punjab), India
+          </a>
         </p>
 
         <p><strong>PHONE</strong></p>
@@ -514,21 +500,27 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Web App URLs
-const FETCH_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
-const SUBMIT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFD-KVvVgNiLKRj2b3m-xxHiXEt9op516vs5mIG2h6YUve11w0H5C5b7-RrV064zO-lQ/exec';
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNUYwV_VhLrwtjEcbqSv8Z2HP-E5t0g2WA41zno0eDqccpNY3zMoDYVOs-lwyL-KWNgg/exec"; 
+// ^^^ Make sure this is the deployment URL for THIS script
 
-// Global variable to store current project data
 let currentProjectData = {};
 
-// Utility Functions
+window.onerror = function (msg, src, line, col, err) {
+  console.error("JS Error:", msg, src, line, col, err);
+  showError("JavaScript error: " + escapeHtml(String(msg)), true);
+};
+
+window.onunhandledrejection = function (evt) {
+  console.error("Unhandled rejection:", evt.reason);
+  showError("Request failed: " + escapeHtml(String(evt.reason?.message || evt.reason)), true);
+};
+
 function getQueryParam(name) {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name);
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
+  if (str === null || str === undefined) return "";
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -538,323 +530,307 @@ function escapeHtml(str) {
 }
 
 function showError(message, isFatal = false) {
-  document.getElementById('loading-spinner').style.display = 'none';
-  const projectParagraphEl = document.getElementById('project-paragraph');
-  projectParagraphEl.innerHTML = '<p style="color: red; text-align: center;">' + message + '</p>';
-  
+  const spinner = document.getElementById("loading-spinner");
+  if (spinner) spinner.style.display = "none";
+
+  const para = document.getElementById("project-paragraph");
+  if (para) para.innerHTML = '<p style="color:red;text-align:center;">' + message + "</p>";
+
   if (isFatal) {
-    document.getElementById('feedback-container').style.display = 'none';
+    const fc = document.getElementById("feedback-container");
+    if (fc) fc.style.display = "none";
   }
 }
 
 function setLoadingState(loading) {
-  const submitBtn = document.getElementById('submit-button');
+  const btn = document.getElementById("submit-button");
+  if (!btn) return;
+
   if (loading) {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    btn.disabled = true;
+    btn.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
   } else {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Feedback';
+    btn.disabled = false;
+    btn.textContent = "Submit Feedback";
   }
 }
 
-// Parse the p parameter to extract client and project codes
-function parseProjectFromUrl() {
-  const pParam = getQueryParam('p');
-  if (!pParam) {
-    return null;
-  }
-  
-  console.log("p parameter found:", pParam);
-  
-  // Expected format: /clientCode/projectCode
-  const cleanParam = pParam.replace(/^\/+|\/+$/g, '');
-  const parts = cleanParam.split('/').filter(part => part.trim() !== '');
-  
-  console.log("Parsed parts:", parts);
-  
-  if (parts.length >= 2) {
-    return {
-      clientCode: parts[0],
-      projectCode: parts[1]
+function jsonp(url, params) {
+  return new Promise((resolve, reject) => {
+    const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+    const fullParams = { ...params, callback: cb };
+    const qs = new URLSearchParams(fullParams).toString();
+
+    const s = document.createElement("script");
+    s.src = url + "?" + qs;
+    s.async = true;
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("JSONP timeout (likely: Web App not public / wrong deployment URL / returned HTML)"));
+    }, 20000);
+
+    window[cb] = (data) => {
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
     };
+
+    s.onerror = () => {
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error("JSONP network/script load error (URL wrong or blocked)"));
+    };
+
+    function cleanup() {
+      try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      if (s.parentNode) s.parentNode.removeChild(s);
+    }
+
+    document.body.appendChild(s);
+  });
+}
+
+function parseProjectFromUrl() {
+  const pParam = getQueryParam("p");
+  if (!pParam) return null;
+
+  const clean = pParam.replace(/^\/+|\/+$/g, "");
+  const parts = clean.split("/").filter(x => x.trim() !== "");
+  if (parts.length >= 2) {
+    return { clientCode: parts[0], projectCode: parts[1] };
   }
   return null;
 }
 
-// Form Validation
 function validateForm() {
-  let isValid = true;
-  
-  const requiredFields = [
-    'overallRating',
-    'qualityRating', 
-    'timelinessRating',
-    'communicationRating',
-    'valueRating'
+  let ok = true;
+  const required = [
+    "searchQuality",
+    "turnaroundTime",
+    "reporting",
+    "responsiveness",
+    "overallRating"
   ];
-  
-  requiredFields.forEach(field => {
-    const checked = document.querySelector('input[name="' + field + '"]:checked');
-    const errorElement = document.getElementById(field + 'Error');
-    
+
+  required.forEach((name) => {
+    const checked = document.querySelector('input[name="' + name + '"]:checked');
+    const errEl = document.getElementById(name + "Error");
     if (!checked) {
-      errorElement.style.display = 'block';
-      isValid = false;
+      if (errEl) errEl.style.display = "block";
+      ok = false;
     } else {
-      errorElement.style.display = 'none';
+      if (errEl) errEl.style.display = "none";
     }
   });
-  
-  return isValid;
+
+  return ok;
 }
 
-// Fetch Project Data from Web App
 async function fetchProjectData(clientCode, projectCode) {
-  try {
-    console.log('Fetching project data for:', { clientCode, projectCode });
-    
-    const url = FETCH_WEB_APP_URL + '?clientCode=' + encodeURIComponent(clientCode) + '&projectCode=' + encodeURIComponent(projectCode);
-    console.log('Fetch URL:', url);
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('HTTP error! status: ' + response.status);
-    }
-    
-    const result = await response.json();
-    console.log('Web App response:', result);
-    
-    if (result.status === 'success') {
-      return result.project;
-    } else {
-      throw new Error(result.message || 'Project not found');
-    }
-  } catch (error) {
-    console.error('Error fetching project data:', error);
-    throw error;
-  }
+  const res = await jsonp(WEB_APP_URL, {
+    op: "getProject",
+    clientCode: String(clientCode),
+    projectCode: String(projectCode)
+  });
+
+  console.log("getProject response:", res);
+
+  if (res && res.status === "success" && res.project) return res.project;
+  throw new Error(res?.message || "Project not found");
 }
 
-// Submit Feedback via Web App - SIMPLIFIED VERSION
 async function submitFeedback(formData, projectData) {
+  setLoadingState(true);
   try {
-    setLoadingState(true);
-    
-    // Prepare data for submission
-    const submissionData = {
-      client_code: String(projectData.client_code),
-      project_code: String(projectData.project_code),
-      overall_rating: String(formData.overallRating),
-      quality_rating: String(formData.qualityRating),
-      timeliness_rating: String(formData.timelinessRating),
-      communication_rating: String(formData.communicationRating),
-      value_rating: String(formData.valueRating),
-      additional_comment: String(formData.comments || '')
-    };
-    
-    console.log('Submitting data:', submissionData);
-    
-    const response = await fetch(SUBMIT_WEB_APP_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submissionData)
+    const res = await jsonp(WEB_APP_URL, {
+      op: "submitFeedback",
+      clientCode: String(projectData.client_code),
+      projectCode: String(projectData.project_code),
+      searchQuality: String(formData.searchQuality),
+      turnaroundTime: String(formData.turnaroundTime),
+      reporting: String(formData.reporting),
+      responsiveness: String(formData.responsiveness),
+      overallRating: String(formData.overallRating),
+      comments: String(formData.comments || "")
     });
-    
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    console.log('Server response:', result);
-    
-    if (result.status === 'success') {
-      return { success: true, message: result.message };
-    } else {
-      throw new Error(result.message || 'Failed to submit feedback');
-    }
-    
-  } catch (error) {
-    console.error('Submission error:', error);
-    throw new Error('Failed to submit feedback: ' + error.message);
+
+    console.log("submitFeedback response:", res);
+
+    if (res && res.status === "success") return res;
+    throw new Error(res?.message || "Submit failed");
   } finally {
     setLoadingState(false);
   }
 }
 
-// Main function to load project data
-async function loadProjectData() {
-  try {
-    // Get project info from URL
-    const urlProject = parseProjectFromUrl();
-    
-    if (!urlProject) {
-      showError('No project specified in URL. Please use a valid project URL with the p parameter (format: ?p=/clientCode/projectCode).<br><br>Example: ?p=/367474/25408', true);
-      return;
-    }
-    
-    console.log("Loading project from URL:", urlProject);
-    
-    // Show loading state
-    document.getElementById('project-name').textContent = 'Loading Project...';
-    
-    // Fetch project data from web app
-    const projectData = await fetchProjectData(urlProject.clientCode, urlProject.projectCode);
-    
-    displayProjectData(projectData);
-
-  } catch (err) {
-    console.error(err);
-    showError('Unable to fetch project data: ' + (err.message || err), true);
-  }
-}
-
 function displayProjectData(project) {
-  const projectNameEl = document.getElementById('project-name');
-  const projectParagraphEl = document.getElementById('project-paragraph');
-  
-  // Use project title if present for heading
-  const heading = project.project_title || 'Unnamed Project';
-  projectNameEl.textContent = heading;
+  const nameEl = document.getElementById("project-name");
+  const paraEl = document.getElementById("project-paragraph");
 
-  // Generate the dynamic paragraph based on project_type
-  const paragraphHtml = generateProjectParagraph(project);
+  const typeRaw = project.project_type || "";
+  const type    = typeRaw.toLowerCase();
+  const title   = project.project_title || "";
+  const patent  = project.patent_number ? String(project.patent_number).trim() : "";
 
-  // Store project data for form submission
+  let headingText = "";
+
+  if (
+    type.includes("patentability") ||
+    type.includes("patentibility") ||
+    (type.includes("patent") && (type.includes("search") || type.includes("analysis")))
+  ) {
+    headingText = title || patent || "Unnamed Project";
+  } else if (
+    type.includes("invalidation") || type.includes("invalidity") || type.includes("opposition") ||
+    type.includes("infringement") || type.includes("infringment") || type.includes("clearance")
+  ) {
+    headingText = patent || title || "Unnamed Project";
+  } else {
+    headingText = title || patent || "Unnamed Project";
+  }
+
+  nameEl.textContent = headingText;
+  paraEl.innerHTML = generateProjectParagraph(project);
+
   currentProjectData = project;
 
-  projectParagraphEl.innerHTML = paragraphHtml;
-  
-  document.getElementById('loading-spinner').style.display = 'none';
-  document.getElementById('feedback-container').style.display = 'block';
+  document.getElementById("loading-spinner").style.display = "none";
+  document.getElementById("feedback-container").style.display = "block";
 }
 
-// Generate project paragraph content
 function generateProjectParagraph(project) {
-  const type = (project.project_type || '').toString().trim();
-  const code = project.project_code || '';
-  const client = project.client_code || '';
-  const title = project.project_title || '';
-  const patent = project.patent_number || '';
-  const product = project.product_name || '';
+  const type   = (project.project_type || "").toString().trim();
+  const code   = project.project_code || "";
+  const client = project.client_code || "";
+  const title  = project.project_title || "";
+  const patent = project.patent_number || "";
+  const product = project.product_name || "";
 
-  console.log("Generating paragraph for project type:", type);
-
-  // Normalize for matching
   const t = type.toLowerCase();
-  
-  if (t.includes('patentability') || t.includes('patentibility') || (t.includes('patent') && (t.includes('search') || t.includes('analysis')))) {
-    return '<p>Thank you for collaborating with us on this Patentability Search project.<br>' +
-           'Your insights help us assess the inventive step and novelty with accuracy.<br>' +
-           'Please provide your feedback to help us improve our search strategies.</p>' +
-           '<p><strong>Project Details:</strong><br>' +
-           'Project Code: ' + escapeHtml(code) + '<br>' +
-           'Client Code: ' + escapeHtml(client) + '<br>' +
-           'Type: Patentability Search<br>' +
-           'Project Title: ' + escapeHtml(title) + 
-           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') + '</p>' +
-           '<p>Thank you for your valuable partnership.</p>';
-  } else if (t.includes('invalidation') || t.includes('invalidity') || t.includes('opposition')) {
-    return '<p>We appreciate the opportunity to support you in this Invalidation Search project.<br>' +
-           'Your feedback helps us refine our methodology for identifying prior art and analysing patent strength.</p>' +
-           '<p><strong>Project Details:</strong><br>' +
-           'Project Code: ' + escapeHtml(code) + '<br>' +
-           'Client Code: ' + escapeHtml(client) + '<br>' +
-           'Type: Invalidation Search<br>' +
-           'Project Title: ' + escapeHtml(title) + '<br>' +
-           'Patent Number: ' + escapeHtml(patent) + '</p>' +
-           '<p>Thank you for trusting our expertise.</p>';
-  } else if (t.includes('infringement') || t.includes('infringment') || t.includes('freedom') || t.includes('f-to-operate') || t.includes('clearance')) {
-    return '<p>Thank you for working with us on this Infringement Study project.<br>' +
-           'Your feedback enables us to improve our evaluation of claim mapping and product analysis.</p>' +
-           '<p><strong>Project Details:</strong><br>' +
-           'Project Code: ' + escapeHtml(code) + '<br>' +
-           'Client Code: ' + escapeHtml(client) + '<br>' +
-           'Type: Infringement Study<br>' +
-           'Project Title: ' + escapeHtml(title) + '<br>' +
-           'Patent Number: ' + escapeHtml(patent) + '<br>' +
-           'Product Name: ' + escapeHtml(product) + '</p>' +
-           '<p>We appreciate your continued collaboration.</p>';
+
+  if (t.includes("patentability") || t.includes("patentibility") ||
+      (t.includes("patent") && (t.includes("search") || t.includes("analysis")))) {
+    return `
+     <p>Thank you for collaborating with us on this Patentability Search project.<br>
+      Your insights help us assess the inventive step and novelty with accuracy.<br>
+      Please provide your feedback to help us improve our search strategies.</p>
+      <p><strong>Project Details:</strong><br>
+      Project Code: ${escapeHtml(code)}<br>
+      Client Code: ${escapeHtml(client)}<br>
+      Type: Patentability Search<br></p>
+
+      <p>Thank you for your valuable partnership.</p>
+    `;
+  } else if (t.includes("invalidation") || t.includes("invalidity") || t.includes("opposition")) {
+    return `
+      <p>We appreciate the opportunity to support you in this Invalidation Search project.<br>
+      Your feedback helps us refine our methodology for identifying prior art and analysing patent strength.</p>
+      <p><strong>Project Details:</strong><br>
+      Project Code: ${escapeHtml(code)}<br>
+      Client Code: ${escapeHtml(client)}<br>
+      Type: Invalidation Search<br>
+      Project Title: ${escapeHtml(title)}<br>
+      </p>
+      
+      <p>Thank you for trusting our expertise.</p>
+    `;
+  } else if (t.includes("infringement") || t.includes("infringment") || t.includes("clearance")) {
+    return `
+      <p>Thank you for working with us on this Infringement Study project.<br>
+      Your feedback enables us to improve our evaluation of claim mapping and product analysis.</p>
+
+      <p><strong>Project Details:</strong><br>
+      Project Code: ${escapeHtml(code)}<br>
+      Client Code: ${escapeHtml(client)}<br>
+      Type: Infringement Study<br>
+      Project Title: ${escapeHtml(title)}<br>
+      Product Name: ${escapeHtml(product)}</p>
+
+      <p>We appreciate your continued collaboration.</p>
+    `;
   } else {
-    // Generic fallback
-    return '<p>Thank you for collaborating with us on this project.<br>' +
-           'Your feedback helps us improve our services and deliver better results.</p>' +
-           '<p><strong>Project Details:</strong><br>' +
-           'Project Code: ' + escapeHtml(code) + '<br>' +
-           'Client Code: ' + escapeHtml(client) + '<br>' +
-           'Type: ' + escapeHtml(type || 'Unknown') + '<br>' +
-           'Project Title: ' + escapeHtml(title) + 
-           (patent ? '<br>Patent Number: ' + escapeHtml(patent) : '') +
-           (product ? '<br>Product Name: ' + escapeHtml(product) : '') + '</p>' +
-           '<p>Thank you for your valuable partnership.</p>';
+    return `
+      <p>Thank you for collaborating with us on this search.<br>
+        Your feedback helps us improve our services and deliver better results.</p>
+      <p><strong>Project Details:</strong><br>
+      Project Code: ${escapeHtml(code)}<br>
+      Client Code: ${escapeHtml(client)}<br>
+      Type: ${escapeHtml(type || "Unknown")}<br>
+      Project Title: ${escapeHtml(title)}${patent ? `<br>Patent Number: ${escapeHtml(patent)}` : ""}${product ? `<br>Product Name: ${escapeHtml(product)}` : ""}</p>
+
+      <p>Thank you for your valuable partnership.</p>
+    `;
   }
 }
 
-// Thank You Page
 function showThankYouPage() {
-  document.getElementById('feedback-container').style.display = 'none';
-  document.getElementById('thank-you-container').style.display = 'block';
+  document.getElementById("feedback-container").style.display = "none";
+  document.getElementById("thank-you-container").style.display = "block";
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-  // Load project data via web app
+function editResponse() {
+  const thankYou = document.getElementById("thank-you-container");
+  if (thankYou) thankYou.style.display = "none";
+
+  const formCard = document.getElementById("feedback-container");
+  if (formCard) formCard.style.display = "block";
+}
+
+async function loadProjectData() {
+  const urlProject = parseProjectFromUrl();
+  if (!urlProject) {
+    showError('No project specified. Contact LogicApt at info@logicapt.com)', true);
+    return;
+  }
+
+  document.getElementById("project-name").textContent = "Loading Project...";
+
+  const projectData = await fetchProjectData(urlProject.clientCode, urlProject.projectCode);
+  displayProjectData(projectData);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
   loadProjectData();
-  
-  // Form submission handler
-  document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+
+  document.getElementById("feedbackForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      const firstError = document.querySelector('.error-message[style="display: block"]');
-      if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
-    
-    // Collect form data
+
+    if (!validateForm()) return;
+
     const formData = {
-      overallRating: document.querySelector('input[name="overallRating"]:checked').value,
-      qualityRating: document.querySelector('input[name="qualityRating"]:checked').value,
-      timelinessRating: document.querySelector('input[name="timelinessRating"]:checked').value,
-      communicationRating: document.querySelector('input[name="communicationRating"]:checked').value,
-      valueRating: document.querySelector('input[name="valueRating"]:checked').value,
-      comments: document.getElementById('comments').value
+      searchQuality:   document.querySelector('input[name="searchQuality"]:checked').value,
+      turnaroundTime:  document.querySelector('input[name="turnaroundTime"]:checked').value,
+      reporting:       document.querySelector('input[name="reporting"]:checked').value,
+      responsiveness:  document.querySelector('input[name="responsiveness"]:checked').value,
+      overallRating:   document.querySelector('input[name="overallRating"]:checked').value,
+      comments:        document.getElementById("comments").value
     };
-    
+
     try {
-      console.log('Form data collected:', formData);
-      console.log('Current project data:', currentProjectData);
-      
-      const result = await submitFeedback(formData, currentProjectData);
-      console.log('Submission successful:', result);
+      await submitFeedback(formData, currentProjectData);
       showThankYouPage();
-    } catch (error) {
-      console.error('Form submission error:', error);
-      alert('Error submitting feedback: ' + error.message);
+    } catch (err) {
+      console.error("Submit error:", err);
+      showError(escapeHtml(String(err.message || err)), false);
     }
   });
-  
-  // Real-time validation for radio buttons
-  const radioGroups = document.querySelectorAll('input[type="radio"]');
-  radioGroups.forEach(radio => {
-    radio.addEventListener('change', function() {
-      const fieldName = this.name;
-      const errorElement = document.getElementById(fieldName + 'Error');
-      if (errorElement) {
-        errorElement.style.display = 'none';
-      }
+
+  document.querySelectorAll('input[type="radio"]').forEach(r => {
+    r.addEventListener("change", function () {
+      const errEl = document.getElementById(this.name + "Error");
+      if (errEl) errEl.style.display = "none";
     });
   });
 });
 </script>
+
 </body>
 </html>
+
+
+
 
 
 
